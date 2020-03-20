@@ -2,13 +2,35 @@
   "name": "electron-markdown",
   "version": "1.0.0",
   "main": "main.js",
+  "description": "一个electron开发的markdown编辑器",
+  "author": {
+    "name": "old yang",
+    "email": "515411030@qq.com"
+  },
   "scripts": {
     "dev:assets": "webpack-dev-server --config ./build/webpack.dev.js",
-    "dev": "electron .",
+    "dev": "electron . --dev",
     "build": "webpack --config ./build/webpack.pro.js"
   },
   "build": {
     "appId": "com.young.app",
+    "fileAssociations": [
+      {
+        "ext": "md",
+        "name": "Markdown 文件",
+        "role": "Editor"
+      },
+      {
+        "ext": "markdown",
+        "name": "Markdown 文件",
+        "role": "Editor"
+      },
+      {
+        "ext": "txt",
+        "name": "文本文件",
+        "role": "Editor"
+      }
+    ],
     "mac": {
       "target": [
         "dmg",

@@ -4,6 +4,12 @@ const { fileOperateType } = require('./enums.js');
 
 let filePath = '';
 
+const formatFileRes = () => {
+  return {
+
+  }
+};
+
 const setFilePath = (fp = '') => {
   filePath = fp;
   return true;
@@ -36,11 +42,24 @@ const writeFile = async (filePath = '', fileText) => {
   }
 };
 
+const createFile = async (filePath, fileText) => {
+  if (!fs.exists(filePath)) {
+    return await writeFile(filePath, fileText);
+  } else {
+    return {
+      fileName: path.basename(filePath),
+      filePath: filePath,
+      status: fileOperateType.EXISTS,
+    };
+  }
+};
+
 const cleanCache = () => {
   setFilePath('');
-  console.log('clean cache success!');
   return true;
 };
+
+
 
 
 module.exports = {
@@ -49,5 +68,6 @@ module.exports = {
   readFile,
   writeFile,
   cleanCache,
+  createFile,
 };
 

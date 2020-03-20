@@ -46,7 +46,7 @@ class MDEContainer extends PureComponent {
                 }
                 // ipcRenderer.send('ondragstart', file.path);
                 const fr = new FileReader();
-                fr.onload = (e) => {
+                fr.onload = async (e) => {
                     console.log('文件加载成功');
                     const fileText: any = e.target.result;
                     const param: any = {
@@ -54,32 +54,54 @@ class MDEContainer extends PureComponent {
                         filePath: file.path,
                         fileText,
                     };
+                    const { editStatus } = this.context;
+                    console.log(editStatus);
+                    if (editStatus !== null) {
+                        const { webContentsId } = await ipcRenderer.invoke('window-open');
+                        ipcRenderer.sendTo(webContentsId, 'rendMDE', param);
+                        return;
+                    }
                     this.context.renderMDE(param, true);
                 };
                 ipcRenderer.send('ondragstart', file.path);
                 fr.readAsText(file);
             }
         }, false);
+
+        ipcRenderer.on('rendMDE', (e, param) => {
+            console.log(param);
+            this.context.renderMDE(param, true);
+        });
     };
 
     bindShortcuts = (MDE) => {
         window.addEventListener('keydown', async (e) => {
             let command = e.metaKey;
-            if (command && e.key === 's') {
-                console.log('文件保存');
-                const fileText = MDE.value();
-                const r = await ipcRenderer.invoke('save', this.context.filePath, fileText);
-                const { changeData } = this.context;
-                if (r.code === '0') {
-                    const { fileName, filePath } = r.info;
-                    changeData({
-                        fileName,
-                        fileText,
-                        filePath,
-                        editStatus: 0,
-                    });
-                } else {
-                    console.log(r);
+            if (command) {
+                switch (e.key) {
+                    case 's':
+                        console.log('文件保存');
+                        const fileText = MDE.value();
+                        const r = await ipcRenderer.invoke('save', this.context.filePath, fileText);
+                        const { changeData } = this.context;
+                        if (r.code === '0') {
+                            const { fileName, filePath } = r.info;
+                            changeData({
+                                fileName,
+                                fileText,
+                                filePath,
+                                editStatus: 0,
+                            });
+                        } else {
+                            console.log(r);
+                        }
+                        break;
+                    case 'n':
+                        console.log('新建窗口');
+                        ipcRenderer.invoke('window-open');
+                        break;
+                    default:
+                        break;
                 }
             }
         }, true);
@@ -89,6 +111,7 @@ class MDEContainer extends PureComponent {
         return new SimpleMDE({
             element: document.querySelector('#mdeBox'),
             autofocus: true,
+            toolbar: false,
             spellChecker: false,
             tabSize: 1
         });
@@ -127,7 +150,9 @@ class MDEContainer extends PureComponent {
 
     render() {
         return (
-            <textarea id="mdeBox"></textarea>
+            <div className="mde-container">
+                <textarea id="mdeBox"></textarea>
+            </div>
         );
     }
 }

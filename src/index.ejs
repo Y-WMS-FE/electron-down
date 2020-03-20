@@ -9,6 +9,7 @@
     <style>
         * {
             margin: 0px;
+            font-family: "PingFang SC Regular", "PingFang SC", "微软雅黑";
         }
     </style>
 </head>
@@ -17,7 +18,17 @@
 
     </div>
     <script>
+        // 把electron注入到window.$electron
         window.$electron = require('electron');
+        <% // 生产环境时，禁止command + r 刷新页面 %>
+        <% if (process.env.NODE_ENV === 'production') {%>
+            window.addEventListener('keydown', (e) => {
+              if (e.metaKey && e.key === 'r') {
+                e.preventDefault();
+                e.stopPropagation();
+              }
+            }, false);
+        <% } %>
     </script>
 </body>
 </html>

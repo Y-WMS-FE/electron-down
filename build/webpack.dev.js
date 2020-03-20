@@ -18,8 +18,15 @@ module.exports = Object.assign({}, baseConf, {
   },
   plugins: [
     ...baseConf.plugins,
+    new webpack.DefinePlugin({
+      process: {
+        env: {
+          NODE_ENV: JSON.stringify('development')
+        }
+      }
+    }),
     new HtmlWebpackPlugin({
-      template: './src/index.html',
+      template: './src/index.ejs',
       filename: 'index.html',
       cache: true,
       inject: true,

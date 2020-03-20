@@ -6,7 +6,7 @@ class MDEProvider extends PureComponent {
         children: any
     };
     state: any = {
-        editStatus: 0, // 0: 已保存, 1: 已编辑, 2': 第一次打开
+        editStatus: null, // 0: 已保存, 1: 已编辑, 2': 第一次打开
         fileName: '未命名',
         fileText: '',
         filePath: '',
