@@ -14,6 +14,9 @@ class MDEProvider extends PureComponent {
     };
 
     changeData = (data: any) => {
+        if (data.hasOwnProperty('fileName')) {
+            document.title = data.fileName;
+        }
         this.setState(data);
     };
 

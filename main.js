@@ -10,6 +10,7 @@ const winOperator = require('./modules/window-operator');
 const { warning, save } = require('./modules/modal');
 const deffer = require('./modules/deffer');
 const { transform2Promise } = require('./modules/util');
+const { touchBar, updateTouchBarLabel } = require('./modules/touch-bar-operator');
 
 const isDev = /--dev/.test(process.argv[2]);
 
@@ -84,13 +85,24 @@ function createWindow() {
   const { webContents } = win;
   if (isDev) {
     win.loadURL('http://localhost:9899');
-    webContents.openDevTools();
+    // webContents.openDevTools();
   } else {
     win.loadFile(path.join(__dirname, 'assets', 'index.html'));
   }
   // win.setTouchBar(touchBar);
   win.on('closed', () => {
     winOperator.removeWin(win);
+  });
+  win.on('show', () => {
+    win.setTouchBar(touchBar);
+  });
+  win.on('page-title-updated', (e, title) => {
+    if (win.isFocused()) {
+      updateTouchBarLabel(title);
+    }
+  });
+  win.on('focus', (event) => {
+    updateTouchBarLabel(win.getTitle());
   });
   return win;
 }
