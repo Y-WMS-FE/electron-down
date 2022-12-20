@@ -2,6 +2,7 @@ const webpack = require('webpack');
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const baseConf = require('./webpack.base');
+
 module.exports = Object.assign({}, baseConf, {
   mode: 'development',
   entry: {
@@ -11,6 +12,7 @@ module.exports = Object.assign({}, baseConf, {
     path: path.resolve(__dirname, './'),
     filename: '[name].js',
   },
+  // target: "electron-renderer",
   module: {
     rules: [
       ...baseConf.module.rules,
@@ -37,7 +39,7 @@ module.exports = Object.assign({}, baseConf, {
     host: 'localhost',
     port: '9899',
     hot: true,
-    contentBase: path.join(__dirname, './'),
+    // contentBase: path.join(__dirname, './'),
   },
 });
 

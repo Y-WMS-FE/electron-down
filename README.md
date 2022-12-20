@@ -18,9 +18,12 @@
 *   ~~拖入文件进入已编辑窗口的时候，打开新的窗口~~
 *   ~~限制窗口的数量~~
 *   ~~touchBar显示文件标题~~
-*   拖入相同文件进入窗口时不需要打开新的窗口
+*   ~~拖入相同文件进入窗口时不需要打开新的窗口~~
 *   已编辑的窗口保存时，默认文件名为第一行文本
-*   已编辑的窗口关闭时，提示用户保存
+*   ~~未命名且已编辑的窗口关闭时，提示用户保存(已命名的文件直接保存)~~
+*   文本内容实时更新
+*   command+shift+s另存为保存
+*   最近文件的快速预览
 *   touchBar初版接入功能函数
 *   用户调整的宽高本地化保存（并且针对样式优化，输入框居中，不应该限制height）
 *   ~~支持多个窗口编辑~~
@@ -32,11 +35,8 @@
 *   快捷键功能开发
 *   对mac + windows的兼容
 *   上传github
-
 *   应用的图标
-
 *   在windows中调试
-
 *   完善menu菜单
 *   touchBar兼容开发
 *   支持拖动文件到应用快捷方式(dock)
@@ -73,7 +73,7 @@
 `2020-03-12`
 1.  开始使用electron + simplemde + index.html 来进行静态文件的搭建
 2.  将index.html切换成使用react + typescript + webpack模式。
-3.  发现react与elctron中通信问题，在index.html中注入window.$electron
+3.  发现react与electron中通信问题，在index.html中注入window.$electron
 4.  文件拖入页面加载
 
 

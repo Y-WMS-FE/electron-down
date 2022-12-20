@@ -3,6 +3,9 @@
     border-top: unset;
 }
 
+.CodeMirror {
+    padding: 10px 20px;
+}
 .mde-container {
     margin-top: 30px;
 }

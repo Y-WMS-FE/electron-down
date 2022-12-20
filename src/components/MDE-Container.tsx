@@ -1,6 +1,7 @@
 import React, { PureComponent } from 'react';
 import SimpleMDE from 'simplemde';
 import { ipcRenderer } from 'electron';
+import Stackedit from 'Stackedit'
 import MDEContext from '../MDE-Context';
 
 class MDEContainer extends PureComponent {
@@ -56,6 +57,10 @@ class MDEContainer extends PureComponent {
                     };
                     const { editStatus } = this.context;
                     console.log(editStatus);
+                    const r = await ipcRenderer.invoke('ondragstart', file.path);
+                    if (!r) {
+                        return;
+                    }
                     if (editStatus !== null) {
                         const { webContentsId } = await ipcRenderer.invoke('window-open');
                         ipcRenderer.sendTo(webContentsId, 'rendMDE', param);
@@ -63,13 +68,11 @@ class MDEContainer extends PureComponent {
                     }
                     this.context.renderMDE(param, true);
                 };
-                ipcRenderer.send('ondragstart', file.path);
                 fr.readAsText(file);
             }
         }, false);
 
         ipcRenderer.on('rendMDE', (e, param) => {
-            console.log(param);
             this.context.renderMDE(param, true);
         });
     };
@@ -78,10 +81,10 @@ class MDEContainer extends PureComponent {
         window.addEventListener('keydown', async (e) => {
             let command = e.metaKey;
             if (command) {
+                const fileText = MDE.value();
                 switch (e.key) {
                     case 's':
                         console.log('文件保存');
-                        const fileText = MDE.value();
                         const r = await ipcRenderer.invoke('save', this.context.filePath, fileText);
                         const { changeData } = this.context;
                         if (r.code === '0') {
@@ -98,7 +101,12 @@ class MDEContainer extends PureComponent {
                         break;
                     case 'n':
                         console.log('新建窗口');
-                        ipcRenderer.invoke('window-open');
+                        await ipcRenderer.invoke('window-open');
+                        break;
+                    case 'w':
+                        e.preventDefault();
+                        console.log(fileText); // 内容
+                        ipcRenderer.send('pre-close', this.context.filePath, fileText);
                         break;
                     default:
                         break;

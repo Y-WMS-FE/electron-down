@@ -14,6 +14,7 @@ module.exports = Object.assign({}, baseConf, {
     filename: '[name][hash].js',
     publicPath: './',
   },
+  target: "electron-renderer",
   module: {
     rules: [
       ...baseConf.module.rules,

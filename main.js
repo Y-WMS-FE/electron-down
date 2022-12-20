@@ -7,7 +7,7 @@ const path = require('path');
 const fileOperator = require('./modules/file-operator');
 const { fileOperateType } = require('./modules/enums');
 const winOperator = require('./modules/window-operator');
-const { warning, save } = require('./modules/modal');
+const { warning, save, info } = require('./modules/modal');
 const deffer = require('./modules/deffer');
 const { transform2Promise } = require('./modules/util');
 const { touchBar, updateTouchBarLabel } = require('./modules/touch-bar-operator');
@@ -52,6 +52,7 @@ async function saveDialog() {
 async function saveFile(filePath, fileText) {
   if (!filePath) {
     filePath = await saveDialog();
+    fileOperator.setFilePath(filePath);
   }
   return fileOperator.writeFile(filePath, fileText);
 }
@@ -75,6 +76,8 @@ function createWindow() {
     height: 700,
     webPreferences: {
       nodeIntegration: true,
+      contextIsolation: false,
+      // preload: path.join(__dirname, 'preload.js'),
     },
     backgroundColor: '#ffffff',
     titleBarStyle: 'hiddenInset',
@@ -85,11 +88,14 @@ function createWindow() {
   const { webContents } = win;
   if (isDev) {
     win.loadURL('http://localhost:9899');
-    // webContents.openDevTools();
+    webContents.openDevTools();
   } else {
     win.loadFile(path.join(__dirname, 'assets', 'index.html'));
   }
   // win.setTouchBar(touchBar);
+  win.on('close', (e) => {
+    // win.webContents.send('before-close');
+  });
   win.on('closed', () => {
     winOperator.removeWin(win);
   });
@@ -109,6 +115,7 @@ function createWindow() {
 
 app.on('window-all-closed', () => {
   console.log(process.platform);
+  // app.clearRecentDocuments()
   if (process.platform !== 'darwin') {
     app.quit();
   }
@@ -117,7 +124,6 @@ app.on('window-all-closed', () => {
 app.on('activate', async () => {
   if (BrowserWindow.getAllWindows().length === 0) {
     const { webContents: { id } } = await createWindow();
-
     return { webContentsId: id };
   }
 });
@@ -129,16 +135,37 @@ app.on('open-file', (e, filePath) => {
   // }
 });
 
-ipcMain.on('ondragstart', (event, filePath) => {
-  console.log(filePath);
-  fileOperator.setFilePath(filePath);
+ipcMain.on('pre-close', async (event, filePath, fileText) => {
+  if (!filePath && fileText) {
+    const r = await info({
+      message: '你要保留此新文件"未命名"吗？',
+      detail: '你可以选择保存，或者立即删除此文件。',
+      buttons: ['保存', '删除', '取消'],
+      cancelId: 2,
+      defaultId: 0
+    });
+    if (r === 0) {
+      await saveFile('', fileText);
+    } else if (r === 2) {
+      return;
+    }
+  }
+  fileOperator.removeFilePath(filePath);
+  event.sender.destroy();
+})
+
+ipcMain.handle('ondragstart', (event, filePath) => {
+  return fileOperator.setFilePath(filePath);
 });
 
 ipcMain.handle('save', async (event, filePath, fileText) => {
   const info = await saveFile(filePath, fileText);
   let r = {
     code: '0',
-    info,
+    info: {
+      fileName: info.fileName,
+      filePath: info.filePath,
+    },
     msg: '保存成功'
   };
   switch (info.status) {
