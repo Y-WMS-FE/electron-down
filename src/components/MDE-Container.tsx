@@ -75,6 +75,18 @@ class MDEContainer extends PureComponent {
         ipcRenderer.on('rendMDE', (e, param) => {
             this.context.renderMDE(param, true);
         });
+
+        window.onbeforeunload = (e) => {
+            const { MDE, filePath, editStatus } = this.context;
+            const fileText = MDE.value();
+            if (editStatus === 1 && filePath) {
+                ipcRenderer.sendSync('save', filePath, fileText);
+            }
+            const r = ipcRenderer.sendSync('pre-close', filePath, fileText);
+            if (!r) {
+                e.returnValue = false;
+            }
+        }
     };
 
     bindShortcuts = (MDE) => {
@@ -85,7 +97,7 @@ class MDEContainer extends PureComponent {
                 switch (e.key) {
                     case 's':
                         console.log('文件保存');
-                        const r = await ipcRenderer.invoke('save', this.context.filePath, fileText);
+                        const r = ipcRenderer.sendSync('save', this.context.filePath, fileText);
                         const { changeData } = this.context;
                         if (r.code === '0') {
                             const { fileName, filePath } = r.info;
@@ -103,11 +115,11 @@ class MDEContainer extends PureComponent {
                         console.log('新建窗口');
                         await ipcRenderer.invoke('window-open');
                         break;
-                    case 'w':
+                    /*case 'w':
                         e.preventDefault();
                         console.log(fileText); // 内容
                         ipcRenderer.send('pre-close', this.context.filePath, fileText);
-                        break;
+                        break;*/
                     default:
                         break;
                 }
@@ -129,6 +141,8 @@ class MDEContainer extends PureComponent {
         MDE.codemirror.on('change', () => {
             const { editStatus, MDE } = this.context;
             console.log(editStatus);
+            // 0: 已保存, 1: 已编辑, 2: 第一次打开
+            // @todo: 增加主线程通知
             if (!editStatus) {
                 this.changeValue('editStatus', 1);
             } else if (editStatus === 2) {

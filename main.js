@@ -1,4 +1,4 @@
-const { app, BrowserWindow, TouchBar, ipcMain } = require('electron');
+const { app, globalShortcut, BrowserWindow, TouchBar, ipcMain } = require('electron');
 const { TouchBarLabel, TouchBarButton, TouchBarSpacer } = TouchBar;
 
 const path = require('path');
@@ -93,7 +93,7 @@ function createWindow() {
     win.loadFile(path.join(__dirname, 'assets', 'index.html'));
   }
   // win.setTouchBar(touchBar);
-  win.on('close', (e) => {
+  win.on('close', async (e) => {
     // win.webContents.send('before-close');
   });
   win.on('closed', () => {
@@ -142,23 +142,26 @@ ipcMain.on('pre-close', async (event, filePath, fileText) => {
       detail: '你可以选择保存，或者立即删除此文件。',
       buttons: ['保存', '删除', '取消'],
       cancelId: 2,
-      defaultId: 0
+      defaultId: 0,
+      noLink: true
     });
     if (r === 0) {
-      await saveFile('', fileText);
+      const info = await saveFile('', fileText);
+      filePath = info.filePath;
     } else if (r === 2) {
+      event.returnValue = false
       return;
     }
   }
   fileOperator.removeFilePath(filePath);
-  event.sender.destroy();
+  event.returnValue = true;
 })
 
 ipcMain.handle('ondragstart', (event, filePath) => {
   return fileOperator.setFilePath(filePath);
 });
 
-ipcMain.handle('save', async (event, filePath, fileText) => {
+ipcMain.on('save', async (event, filePath, fileText) => {
   const info = await saveFile(filePath, fileText);
   let r = {
     code: '0',
@@ -182,7 +185,7 @@ ipcMain.handle('save', async (event, filePath, fileText) => {
     default:
       break;
   }
-  return r;
+  event.returnValue = r;
 });
 
 ipcMain.handle('window-open', async (event) => {

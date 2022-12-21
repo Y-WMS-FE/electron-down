@@ -31,7 +31,9 @@ class MDEProvider extends PureComponent {
             fileText,
             filePath
         } = param;
+        // 0: 已保存, 1: 已编辑, 2: 第一次打开
         const editStatus = firstOpen ? 2 : 1;
+        // @todo: 增加主线程通知
         this.changeData({ fileName, fileText, editStatus, filePath });
         MDE.value(fileText);
     };
