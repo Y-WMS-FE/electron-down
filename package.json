@@ -36,7 +36,14 @@
       "target": [
         "dmg",
         "zip"
-      ]
+      ],
+      "extendInfo": {
+        "CFBundleDocumentTypes": [
+          {
+            "CFBundleTypeExtensions": ["md"]
+          }
+        ]
+      }
     },
     "win": {
       "target": [

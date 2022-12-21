@@ -14,5 +14,6 @@ builder.build({
       'modules/*',
       'main.js',
     ]
-  }
+  },
+  extendInfo: {}
 });

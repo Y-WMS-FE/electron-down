@@ -1,4 +1,4 @@
-const { app, globalShortcut, BrowserWindow, TouchBar, ipcMain } = require('electron');
+const { app, globalShortcut, BrowserWindow, TouchBar, ipcMain, shell } = require('electron');
 const { TouchBarLabel, TouchBarButton, TouchBarSpacer } = TouchBar;
 
 const path = require('path');
@@ -88,7 +88,7 @@ function createWindow() {
   const { webContents } = win;
   if (isDev) {
     win.loadURL('http://localhost:9899');
-    webContents.openDevTools();
+    // webContents.openDevTools();
   } else {
     win.loadFile(path.join(__dirname, 'assets', 'index.html'));
   }
@@ -113,6 +113,7 @@ function createWindow() {
   return win;
 }
 
+// app.setAsDefaultProtocolClient()
 app.on('window-all-closed', () => {
   console.log(process.platform);
   // app.clearRecentDocuments()
@@ -128,8 +129,19 @@ app.on('activate', async () => {
   }
 });
 
-app.on('open-file', (e, filePath) => {
+app.on('open-file', async (e, filePath) => {
   e.preventDefault();
+  console.log('open-file')
+  if (winOperator.getWinNum() >= 5) {
+    await warning({
+      message: '您打开了太多的窗口！',
+      detail: '请关闭一些不需要的窗口。',
+    });
+    return console.log('窗口太多');
+  }
+  const { webContents } = await createWindow();
+  await transform2Promise(webContents.on.bind(webContents), 'did-finish-load', () => {});
+  // webContents.send()
   // if (win) {
   //   win.send('open-file', filePath);
   // }
