@@ -76,17 +76,13 @@ class MDEContainer extends PureComponent {
             this.context.renderMDE(param, true);
         });
 
-        window.onbeforeunload = (e) => {
-            const { MDE, filePath, editStatus } = this.context;
+        ipcRenderer.on('before-close', (e) => {
+            const { MDE, filePath, editStatus, fileName } = this.context;
             const fileText = MDE.value();
-            if (editStatus === 1 && filePath) {
-                ipcRenderer.sendSync('save', filePath, fileText);
-            }
-            const r = ipcRenderer.sendSync('pre-close', filePath, fileText);
-            if (!r) {
-                e.returnValue = false;
-            }
-        }
+            ipcRenderer.sendSync('pre-close', {
+                filePath, fileText, editStatus, fileName
+            });
+        })
     };
 
     bindShortcuts = (MDE) => {

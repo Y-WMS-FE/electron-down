@@ -15,5 +15,4 @@ builder.build({
       'main.js',
     ]
   },
-  extendInfo: {}
 });

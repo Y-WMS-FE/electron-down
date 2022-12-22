@@ -1,6 +1,6 @@
 {
   "name": "electron-markdown",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "main": "main.js",
   "description": "一个electron开发的markdown编辑器",
   "author": {
@@ -10,8 +10,8 @@
   "scripts": {
     "dev:assets": "webpack serve --config ./build/webpack.dev.js",
     "dev": "electron . --dev",
-    "build": "webpack --config ./build/webpack.pro.js",
-    "dist": "node ./build/electron-build.js"
+    "build:assets": "webpack --config ./build/webpack.pro.js",
+    "build": "node ./build/electron-build.js"
   },
   "build": {
     "appId": "com.young.app",
@@ -36,14 +36,7 @@
       "target": [
         "dmg",
         "zip"
-      ],
-      "extendInfo": {
-        "CFBundleDocumentTypes": [
-          {
-            "CFBundleTypeExtensions": ["md"]
-          }
-        ]
-      }
+      ]
     },
     "win": {
       "target": [
@@ -54,7 +47,6 @@
   },
   "license": "MIT",
   "dependencies": {
-    "electron": "^21.3.1",
     "mz": "^2.7.0",
     "object-assign": "^4.1.1",
     "react": "^16.13.0",
@@ -71,7 +63,8 @@
     "babel-loader": "^9.1.0",
     "clean-webpack-plugin": "^3.0.0",
     "css-loader": "^3.4.2",
-    "electron-builder": "^22.4.1",
+    "electron": "^22.0.0",
+    "electron-builder": "^23.6.0",
     "eslint": "^6.8.0",
     "html-webpack-plugin": "^5.5.0",
     "less": "^3.11.1",

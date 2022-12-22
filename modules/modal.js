@@ -6,7 +6,7 @@ const warning = async (param) => {
   });
 };
 
-const info = async (param) => {
+const info = (param) => {
   return dialog.showMessageBoxSync({
     type: 'info', ...param,
   });

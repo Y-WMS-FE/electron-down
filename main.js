@@ -14,6 +14,7 @@ const { touchBar, updateTouchBarLabel } = require('./modules/touch-bar-operator'
 
 const isDev = /--dev/.test(process.argv[2]);
 
+let isQuit = 0;
 // Reel labels
 // const reel1 = new TouchBarLabel()
 // const reel2 = new TouchBarLabel()
@@ -93,8 +94,9 @@ function createWindow() {
     win.loadFile(path.join(__dirname, 'assets', 'index.html'));
   }
   // win.setTouchBar(touchBar);
-  win.on('close', async (e) => {
-    // win.webContents.send('before-close');
+  win.on('close', (e) => {
+    e.preventDefault();
+    webContents.send('before-close');
   });
   win.on('closed', () => {
     winOperator.removeWin(win);
@@ -129,7 +131,15 @@ app.on('activate', async () => {
   }
 });
 
-app.on('open-file', async (e, filePath) => {
+app.on('before-quit', () => {
+  isQuit = winOperator.getWinNum();
+})
+
+/*app.on('will-quit', () => {
+  console.log('will quit');
+})*/
+
+/*app.on('open-file', async (e, filePath) => {
   e.preventDefault();
   console.log('open-file')
   if (winOperator.getWinNum() >= 5) {
@@ -145,28 +155,41 @@ app.on('open-file', async (e, filePath) => {
   // if (win) {
   //   win.send('open-file', filePath);
   // }
-});
+});*/
 
-ipcMain.on('pre-close', async (event, filePath, fileText) => {
-  if (!filePath && fileText) {
-    const r = await info({
-      message: '你要保留此新文件"未命名"吗？',
-      detail: '你可以选择保存，或者立即删除此文件。',
-      buttons: ['保存', '删除', '取消'],
+ipcMain.on('log', (event, info) => {
+  console.log(info, '-----');
+})
+
+ipcMain.on('pre-close', async (event, {
+  filePath, fileText, editStatus, fileName
+}) => {
+  // 如果状态是"已编辑"
+  if (editStatus === 1) {
+    const r = info({
+      message: `你要保存"${fileName || '未命名'}"的修改吗？`,
+      detail: '如果不保存，修改就会丢失。',
+      buttons: ['保存', '不保存', '取消'],
       cancelId: 2,
       defaultId: 0,
       noLink: true
     });
     if (r === 0) {
-      const info = await saveFile('', fileText);
+      const info = await saveFile(filePath, fileText);
       filePath = info.filePath;
     } else if (r === 2) {
       event.returnValue = false
+      isQuit = 0;
       return;
     }
   }
+  // 触发了"退出"事件，并且是最后一个
+  if (isQuit > 0 && isQuit-- === 1) {
+    app.exit();
+    console.log('do');
+  }
   fileOperator.removeFilePath(filePath);
-  event.returnValue = true;
+  event.sender.destroy();
 })
 
 ipcMain.handle('ondragstart', (event, filePath) => {
