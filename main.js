@@ -139,23 +139,28 @@ app.on('before-quit', () => {
   console.log('will quit');
 })*/
 
-/*app.on('open-file', async (e, filePath) => {
+app.on('open-file', async (e, filePath) => {
   e.preventDefault();
-  console.log('open-file')
-  if (winOperator.getWinNum() >= 5) {
-    await warning({
-      message: '您打开了太多的窗口！',
-      detail: '请关闭一些不需要的窗口。',
-    });
-    return console.log('窗口太多');
+  console.log('open-file');
+  const { base: fileName, ext } = path.parse(filePath);
+  if (ext === '.md') {
+    if (winOperator.getWinNum() >= 5) {
+      await warning({
+        message: '您打开了太多的窗口！',
+        detail: '请关闭一些不需要的窗口。',
+      });
+      return console.log('窗口太多');
+    }
+    const { webContents } = await createWindow();
+    await transform2Promise(webContents.on.bind(webContents), 'did-finish-load', () => {});
+    const fileText = fileOperator.readFile(filePath);
+    webContents.send('rendMDE', {
+      fileName,
+      filePath,
+      fileText,
+    })
   }
-  const { webContents } = await createWindow();
-  await transform2Promise(webContents.on.bind(webContents), 'did-finish-load', () => {});
-  // webContents.send()
-  // if (win) {
-  //   win.send('open-file', filePath);
-  // }
-});*/
+});
 
 ipcMain.on('log', (event, info) => {
   console.log(info, '-----');

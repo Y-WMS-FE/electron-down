@@ -32,8 +32,8 @@ const getFilePath = () => {
   return filePath;
 };
 
-const readFile = async () => {
-  return await fs.readFile(filePath, 'utf-8');
+const readFile = (fp) => {
+  return fs.readFileSync(fp, 'utf-8');
 };
 
 const writeFile = async (filePath = '', fileText) => {

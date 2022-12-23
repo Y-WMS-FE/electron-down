@@ -1,6 +1,6 @@
 {
-  "name": "electron-markdown",
-  "version": "0.0.3",
+  "name": "e-markdown",
+  "version": "0.0.7",
   "main": "main.js",
   "description": "一个electron开发的markdown编辑器",
   "author": {
@@ -36,7 +36,12 @@
       "target": [
         "dmg",
         "zip"
-      ]
+      ],
+      "extendInfo": {
+        "CFBundleDocumentTypes": [{
+          "CFBundleTypeExtensions": ["dat"]
+        }]
+      }
     },
     "win": {
       "target": [

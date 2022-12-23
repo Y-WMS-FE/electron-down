@@ -5,7 +5,7 @@ builder.build({
   targets: Platform.MAC.createTarget('dmg'),
   config: {
     dmg: {
-      title: 'electron-markdown',
+      title: 'e-markdown',
       icon: './'
     },
     appId: 'com.young.app',
