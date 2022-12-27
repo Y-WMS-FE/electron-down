@@ -1,8 +1,6 @@
 const { app, globalShortcut, BrowserWindow, TouchBar, ipcMain, shell } = require('electron');
 const { TouchBarLabel, TouchBarButton, TouchBarSpacer } = TouchBar;
-
 const path = require('path');
-
 // 引入modules里的功能
 const fileOperator = require('./modules/file-operator');
 const { fileOperateType } = require('./modules/enums');
@@ -11,6 +9,8 @@ const { warning, save, info } = require('./modules/modal');
 const deffer = require('./modules/deffer');
 const { transform2Promise } = require('./modules/util');
 const { touchBar, updateTouchBarLabel } = require('./modules/touch-bar-operator');
+
+// https://raw.githubusercontent.com/Y-WMS-FE/electron-down/master/update.json
 
 const isDev = /--dev/.test(process.argv[2]);
 

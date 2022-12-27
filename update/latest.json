@@ -1,0 +1,8 @@
+{
+  "version": "0.0.7",
+  "darwin": {
+    "url": "https://github.com/Y-WMS-FE/electron-down/releases/download/0.0.7/e-markdown-0.0.7-arm64.dmg",
+    "size": 91168518,
+    "releaseDate": "2022-12-27T09:02:46.901Z"
+  }
+}
