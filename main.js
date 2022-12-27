@@ -133,15 +133,10 @@ app.on('activate', async () => {
 
 app.on('before-quit', () => {
   isQuit = winOperator.getWinNum();
-})
-
-/*app.on('will-quit', () => {
-  console.log('will quit');
-})*/
+});
 
 app.on('open-file', async (e, filePath) => {
   e.preventDefault();
-  console.log('open-file');
   const { base: fileName, ext } = path.parse(filePath);
   if (ext === '.md') {
     if (winOperator.getWinNum() >= 5) {
