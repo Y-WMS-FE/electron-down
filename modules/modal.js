@@ -1,6 +1,6 @@
 const { dialog } = require('electron');
 
-const warning = async (param) => {
+const warning = (param) => {
   return dialog.showMessageBoxSync({
     type: 'warning', ...param,
   });

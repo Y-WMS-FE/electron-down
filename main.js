@@ -1,4 +1,6 @@
-const { app, globalShortcut, BrowserWindow, TouchBar, ipcMain, shell } = require('electron');
+const {
+  app, globalShortcut, BrowserWindow, TouchBar, ipcMain, shell, Tray, Menu
+} = require('electron');
 const { TouchBarLabel, TouchBarButton, TouchBarSpacer } = TouchBar;
 const path = require('path');
 // 引入modules里的功能
@@ -9,12 +11,15 @@ const { warning, save, info } = require('./modules/modal');
 const deffer = require('./modules/deffer');
 const { transform2Promise } = require('./modules/util');
 const { touchBar, updateTouchBarLabel } = require('./modules/touch-bar-operator');
+const { checkUpdates } = require('./update/update');
 
 // https://raw.githubusercontent.com/Y-WMS-FE/electron-down/master/update.json
 
 const isDev = /--dev/.test(process.argv[2]);
 
 let isQuit = 0;
+let tray = null;
+
 // Reel labels
 // const reel1 = new TouchBarLabel()
 // const reel2 = new TouchBarLabel()
@@ -115,6 +120,43 @@ function createWindow() {
   return win;
 }
 
+function initTray() {
+  tray = new Tray('./resource/icon.png');
+  tray.setTitle('electron-down');
+  tray.setToolTip('electron-down');
+}
+
+function initMenu() {
+  const template = [
+    {
+      label: app.name,
+      submenu: [
+        { label: '关于', role: 'about' },
+        {
+          label: '检查更新',
+          click: async () => {
+            await checkUpdates();
+            console.log(2333)
+          }
+        },
+        { type: 'separator' },
+        {
+          label: '偏好设置',
+          click: () => {
+            warning({
+              message: '暂不支持',
+              detail: '功能正在开发中'
+            })
+          }
+        }
+      ]
+    }
+  ];
+
+  const menu = Menu.buildFromTemplate(template);
+  Menu.setApplicationMenu(menu);
+}
+
 // app.setAsDefaultProtocolClient()
 app.on('window-all-closed', () => {
   console.log(process.platform);
@@ -140,7 +182,7 @@ app.on('open-file', async (e, filePath) => {
   const { base: fileName, ext } = path.parse(filePath);
   if (ext === '.md') {
     if (winOperator.getWinNum() >= 5) {
-      await warning({
+      warning({
         message: '您打开了太多的窗口！',
         detail: '请关闭一些不需要的窗口。',
       });
@@ -225,7 +267,7 @@ ipcMain.on('save', async (event, filePath, fileText) => {
 
 ipcMain.handle('window-open', async (event) => {
   if (winOperator.getWinNum() >= 5) {
-    await warning({
+    warning({
       message: '您打开了太多的窗口！',
       detail: '请关闭一些不需要的窗口。',
     });
@@ -238,4 +280,9 @@ ipcMain.handle('window-open', async (event) => {
   };
 });
 
-app.whenReady().then(createWindow);
+app.whenReady().then(() => {
+  // require('./update/update');
+  // initTray();
+  initMenu()
+  createWindow();
+});

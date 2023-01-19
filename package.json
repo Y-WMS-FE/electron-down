@@ -60,6 +60,7 @@
     "object-assign": "^4.1.1",
     "react": "^16.13.0",
     "react-dom": "^16.13.0",
+    "semver": "^7.3.8",
     "simplemde": "^1.11.2"
   },
   "devDependencies": {
